@@ -1,0 +1,38 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/Lock.sol": {
+      "content": "// SPDX-License-Identifier: UNLICENSED\npragma solidity ^0.8.9;\n\n// Uncomment this line to use console.log\n// import \"hardhat/console.sol\";\n\ncontract Lock {\n    uint public unlockTime;\n    address payable public owner;\n\n    event Withdrawal(uint amount, uint when);\n\n    constructor(uint _unlockTime) payable {\n        require(\n            block.timestamp < _unlockTime,\n            \"Unlock time should be in the future\"\n        );\n\n        unlockTime = _unlockTime;\n        owner = payable(msg.sender);\n    }\n\n    function withdraw() public {\n        // Uncomment this line, and the import of \"hardhat/console.sol\", to print a log in your terminal\n        // console.log(\"Unlock time is %o and block timestamp is %o\", unlockTime, block.timestamp);\n\n        require(block.timestamp >= unlockTime, \"You can't withdraw yet\");\n        require(msg.sender == owner, \"You aren't the owner\");\n\n        emit Withdrawal(address(this).balance, block.timestamp);\n\n        owner.transfer(address(this).balance);\n    }\n}\n"
+    },
+    "contracts/MemberShipValidation.sol": {
+      "content": "// SPDX-License-Identifier: UNLICENSED\npragma solidity ^0.8.9;\n\n\ncontract MembershipValidation {\n    // Max number of members\n    uint private s_maxMembers;\n    // Owner of the Club\n    address private s_owner;\n\n    // Existing member list\n    address[] private members;\n\n    constructor(){\n        // Initialized on deployment\n        s_owner = msg.sender;\n        s_maxMembers = 10;\n    }\n\n    // Modifier to check ownership\n    modifier isOwner(){\n        require(msg.sender == s_owner);\n        _;\n    }\n\n    // Increase the number of members by a number\n    function increaseMembers(uint moreNumber) public isOwner {\n        assert(moreNumber > 0);\n        s_maxMembers = s_maxMembers + moreNumber;\n    }\n\n    // decrease the number of members by a number\n    function decreaseMembers(uint lessNumber) public isOwner {\n         assert(lessNumber > 0);\n        s_maxMembers = s_maxMembers - lessNumber;\n    }\n\n    // add a new member\n    function addMember(address newMember) public isOwner {\n         bool exists = false;\n         for (uint i=0; i < members.length; i++) {\n           if (newMember == members[i]) {\n             exists = true;\n             break;\n           }\n        }\n\n        if(exists){\n            revert(\"Member already exist.\");\n        }\n\n        members.push(newMember);\n    }\n}"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
