@@ -10,7 +10,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     console.log("chainId:",chainId);
 
     log("----------------------------------------------------")
-    log("Deploying FWRewards and waiting for confirmations...")
+    log("Deploying MembershipValidation and waiting for confirmations...")
     const membershipValidation = await deploy("MembershipValidation", {
         from: deployer,
         args: [],
