@@ -1,0 +1,38 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/CohortProgram.sol": {
+      "content": "// SPDX-License-Identifier: UNLICENSED\npragma solidity ^0.8.9;\n\n\ncontract CohortProgram{\n    uint private s_maxParticipants;\n    uint private s_NoOfParticipants;\n\n    enum Level{\n        Beginner,\n        Intermediate,\n        Expert\n    }\n\n    struct Participant {\n        uint256 dateOfJoining;\n        string name;\n        string summary;\n        Level  knowledgeLevel;\n        uint   rollNo;\n    }\n   \n    mapping(address=>Participant) s_participants;\n   \n\n    Participant[] s_allParticipants;\n\n    constructor(){\n        s_maxParticipants = 30;\n    }\n\n    function register(string memory name, string memory summary, Level knowLevel) public returns(uint) {\n       require(s_NoOfParticipants < s_maxParticipants,\"Registration is closed\");\n       \n       s_NoOfParticipants = s_NoOfParticipants + 1;\n       Participant memory p = Participant(block.timestamp,name,summary,knowLevel,s_NoOfParticipants);\n    \n       s_participants[msg.sender] = p;\n       s_allParticipants.push(p);\n    \n       return s_NoOfParticipants;\n    }\n\n    // Returns all participants\n    function getAllParticipants() public view returns(Participant[] memory){\n        return s_allParticipants;\n    }\n   \n    // Get details of the current user\n    function getParticipant() public view returns(Participant memory){\n        return s_participants[msg.sender];\n    } \n\n    function availableSpots() public view returns(uint){\n        return s_maxParticipants - s_NoOfParticipants;\n    }\n}"
+    },
+    "contracts/Lock.sol": {
+      "content": "// SPDX-License-Identifier: UNLICENSED\npragma solidity ^0.8.9;\n\n// Uncomment this line to use console.log\n// import \"hardhat/console.sol\";\n\ncontract Lock {\n    uint public unlockTime;\n    address payable public owner;\n\n    event Withdrawal(uint amount, uint when);\n\n    constructor(uint _unlockTime) payable {\n        require(\n            block.timestamp < _unlockTime,\n            \"Unlock time should be in the future\"\n        );\n\n        unlockTime = _unlockTime;\n        owner = payable(msg.sender);\n    }\n\n    function withdraw() public {\n        // Uncomment this line, and the import of \"hardhat/console.sol\", to print a log in your terminal\n        // console.log(\"Unlock time is %o and block timestamp is %o\", unlockTime, block.timestamp);\n\n        require(block.timestamp >= unlockTime, \"You can't withdraw yet\");\n        require(msg.sender == owner, \"You aren't the owner\");\n\n        emit Withdrawal(address(this).balance, block.timestamp);\n\n        owner.transfer(address(this).balance);\n    }\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
